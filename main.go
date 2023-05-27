@@ -69,7 +69,6 @@ func genZap(gen *protogen.Plugin, file *protogen.File) {
 	g.P()
 
 	g.Import(protogen.GoImportPath("go.uber.org/zap/zapcore"))
-	g.QualifiedGoIdent(protogen.GoIdent{GoName: "Abc", GoImportPath: "go.uber.org/zap/zapcore"})
 
 	for _, m := range file.Messages {
 		genZapMessage(g, m)
@@ -77,8 +76,12 @@ func genZap(gen *protogen.Plugin, file *protogen.File) {
 }
 
 func genZapMessage(g *protogen.GeneratedFile, m *protogen.Message) {
+	if m.Desc.IsMapEntry() {
+		return
+	}
 	// object marshal
-	g.Annotate(m.GoIdent.GoName, m.Location)
+	//g.Annotate(m.GoIdent.GoName, m.Location)
+	g.QualifiedGoIdent(protogen.GoIdent{GoName: "Abc", GoImportPath: "go.uber.org/zap/zapcore"})
 	g.P("func (x *", m.GoIdent, ") MarshalLogObject(enc zapcore.ObjectEncoder) error {")
 	for _, field := range m.Fields {
 		if field.Desc.IsWeak() {
@@ -113,6 +116,9 @@ func genZapMessage(g *protogen.GeneratedFile, m *protogen.Message) {
 	g.P("return nil")
 	g.P("}")
 	g.P()
+	for _, im := range m.Messages {
+		genZapMessage(g, im)
+	}
 
 	// array marshal
 }
