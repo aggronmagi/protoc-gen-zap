@@ -68,8 +68,6 @@ func genZap(gen *protogen.Plugin, file *protogen.File) {
 	g.P("package ", file.GoPackageName)
 	g.P()
 
-	g.Import(protogen.GoImportPath("go.uber.org/zap/zapcore"))
-
 	for _, m := range file.Messages {
 		genZapMessage(g, m)
 	}
@@ -81,6 +79,7 @@ func genZapMessage(g *protogen.GeneratedFile, m *protogen.Message) {
 	}
 	// object marshal
 	//g.Annotate(m.GoIdent.GoName, m.Location)
+	g.Import(protogen.GoImportPath("go.uber.org/zap/zapcore"))
 	g.QualifiedGoIdent(protogen.GoIdent{GoName: "Abc", GoImportPath: "go.uber.org/zap/zapcore"})
 	g.P("func (x *", m.GoIdent, ") MarshalLogObject(enc zapcore.ObjectEncoder) error {")
 	for _, field := range m.Fields {
@@ -116,6 +115,19 @@ func genZapMessage(g *protogen.GeneratedFile, m *protogen.Message) {
 	g.P("return nil")
 	g.P("}")
 	g.P()
+
+	g.P("type ZapArray", m.GoIdent, " []*", m.GoIdent)
+	g.P("func (x ZapArray", m.GoIdent, ")  MarshalLogArray(ae zapcore.ArrayEncoder) error {")
+	g.P("for _, v := range x {")
+	g.P("ae.AppendObject(v)")
+	g.P("}")
+	g.P("return nil")
+	g.P("}")
+	g.Import(protogen.GoImportPath("go.uber.org/zap"))
+	g.QualifiedGoIdent(protogen.GoIdent{GoName: "Abc", GoImportPath: "go.uber.org/zap"})
+	g.P(`func LogArray`, m.GoIdent, `(name string, v []*`, m.GoIdent, `) zap.Field {`)
+	g.P(`return zap.Array(name, ZapArray`, m.GoIdent, `(v))`)
+	g.P("}")
 	for _, im := range m.Messages {
 		genZapMessage(g, im)
 	}
