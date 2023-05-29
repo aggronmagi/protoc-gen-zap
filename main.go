@@ -144,13 +144,13 @@ func getFieldMapKey(g *protogen.GeneratedFile, field *protogen.Field) (funcName 
 		funcName = "k.String()"
 		isImport = false
 	case protoreflect.Int32Kind, protoreflect.Sint32Kind, protoreflect.Sfixed32Kind:
-		funcName = "strconv.FormatInt64(int64(k), 10)"
+		funcName = "strconv.FormatInt(int64(k), 10)"
 	case protoreflect.Uint32Kind, protoreflect.Fixed32Kind:
-		funcName = "strconv.FormatUint64(uint64(k), 10)"
+		funcName = "strconv.FormatUint(uint64(k), 10)"
 	case protoreflect.Int64Kind, protoreflect.Sint64Kind, protoreflect.Sfixed64Kind:
-		funcName = "strconv.FormatInt64(k, 10)"
+		funcName = "strconv.FormatInt(k, 10)"
 	case protoreflect.Uint64Kind, protoreflect.Fixed64Kind:
-		funcName = "strconv.FormatUint64(k, 10)"
+		funcName = "strconv.FormatUint(k, 10)"
 	case protoreflect.FloatKind:
 		funcName = "strconv.FormatFloat32(k, 10)"
 	case protoreflect.DoubleKind:
