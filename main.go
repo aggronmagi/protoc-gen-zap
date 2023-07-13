@@ -26,6 +26,7 @@ const grpcDocURL = "https://grpc.io/docs/languages/go/quickstart/#regenerate-grp
 
 var (
 	Version = "0.0.1"
+	KeyNameFormat *string
 )
 
 func main() {
@@ -42,6 +43,9 @@ func main() {
 		flags   flag.FlagSet
 		plugins = flags.String("plugins", "", "deprecated option")
 	)
+
+	KeyNameFormat = flags.String("KeyNameFormat", "GoName", "choose one format of GoName JSONName TextName for KeyName")
+
 	protogen.Options{
 		ParamFunc: flags.Set,
 	}.Run(func(gen *protogen.Plugin) error {
@@ -87,7 +91,15 @@ func genZapMessage(g *protogen.GeneratedFile, m *protogen.Message) {
 			continue
 		}
 
-		keyName := field.GoName
+		keyName := ""
+		switch *KeyNameFormat{
+		case "JSONName":
+			keyName = field.Desc.JSONName()
+		case "TextName":
+			keyName = field.Desc.TextName()
+		default:
+			keyName = field.GoName
+		}
 		fieldName := field.GoName
 		if field.Desc.IsMap() {
 			g.P(`enc.AddObject("`, keyName, `", zapcore.ObjectMarshalerFunc(func(oe zapcore.ObjectEncoder) error {`)
